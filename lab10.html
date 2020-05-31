@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"/>
+<title>Texture Mapping</title>
+<script src="three.min.js"></script>
+
+<!--Adapted from the blog post:
+    http://solutiondesign.com/blog/-/blogs/webgl-and-three-js-texture-mappi-1/-->
+
+<script>
+    var scene, camera, renderer; // Three.js rendering basics.
+
+    var canvas; // The canvas on which the image is rendered.
+
+    // The rotating cube
+    var cube;
+    
+    // Create the scene. This function is called once, as soon as the page loads.
+    // The renderer has already been created before this function is called.
+    function createWorld() {
+        
+        renderer.setClearColor(0); // Set background color (0, or 0x000000, is black).
+        scene = new THREE.Scene(); // Create a new scene which we can add objects to.
+    
+        // create a camera, sitting on the positive z-axis.  The camera is not part of the scene.
+        camera = new THREE.PerspectiveCamera(70, canvas.width/canvas.height, 1, 1000);
+
+        var light = new THREE.DirectionalLight( 0xffffff );
+        light.position.set( 1, 1, 1 );
+        scene.add(light);
+    
+        var geometry = new THREE.BoxGeometry(10, 10, 10);
+        var material = new THREE.MeshPhongMaterial( { color: "blue", specular: "white", shininess: 5 } );
+  
+        var loader = new THREE.TextureLoader();
+
+        var woodTexture = loader.load("wood.jpg");
+        var woodMaterial = new THREE.MeshPhongMaterial( { map: woodTexture } );
+
+        var appleTexture = loader.load("apple.jpg");
+        var appleMaterial = new THREE.MeshPhongMaterial( { map: appleTexture } );
+
+        var wallpaperTexture = loader.load("wallpaper.jpg");
+        var wallpaperMaterial = new THREE.MeshPhongMaterial( { map: wallpaperTexture } );
+
+        var skyTexture = loader.load("sky.jpg");
+        var skyMaterial = new THREE.MeshPhongMaterial( { map: skyTexture } );
+
+        var grassTexture = loader.load("grass.jpg");
+        var grassMaterial = new THREE.MeshPhongMaterial( { map: grassTexture } );
+
+        var stoneTexture = loader.load("stone.jpg");
+        var stoneMaterial = new THREE.MeshPhongMaterial( { map: stoneTexture } );
+
+        var materials = [woodMaterial, appleMaterial, wallpaperMaterial, 
+        skyMaterial, grassMaterial, stoneMaterial];
+
+        // replace cube creation with:
+        // cube = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
+        // replace cube creation with:
+        // cube = new THREE.Mesh(geometry, woodMaterial);
+
+        // cube = new THREE.Mesh(geometry, material);
+        // cube.position.z = -25;
+        // scene.add(cube);
+
+
+        // set up the geometry for our pyramid
+        var pyramidGeom = new THREE.Geometry();
+        
+        pyramidGeom.vertices = [  // array of Vector3 giving vertex coordinates
+        new THREE.Vector3( 1, 0, 1 ),    // vertex number 0
+        new THREE.Vector3( 1, 0, -1 ),   // vertex number 1
+        new THREE.Vector3( -1, 0, -1 ),  // vertex number 2
+        new THREE.Vector3( -1, 0, 1 ),   // vertex number 3
+        new THREE.Vector3( 0, 1, 0 )     // vertex number 4
+        ];
+                
+        pyramidGeom.faces = [  // array of Face3 giving the triangular faces
+        new THREE.Face3( 3, 2, 1),  // one half of the bottom face
+        new THREE.Face3( 3, 1, 0),  // second half of the bottom face
+        new THREE.Face3( 3, 0, 4),  // remaining faces are the four sides
+        new THREE.Face3( 0, 1, 4),
+        new THREE.Face3( 1, 2, 4),
+        new THREE.Face3( 2, 3, 4)
+        ];
+            
+        pyramidGeom.computeFaceNormals();
+
+        // set up several uv coordinates to repeatedly use below
+        var uvcoords = [new THREE.Vector2(0, 0), 
+                        new THREE.Vector2(1, 0),
+                        new THREE.Vector2(0, 1)];
+
+        // erase any previous face coordinates
+        
+
+        // write one line for each of the 6 face
+            pyramidGeom.faceVertexUvs[0] = [];
+            pyramidGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[2]]);
+            pyramidGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[2]]);
+            pyramidGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[2]]);
+            pyramidGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[2]]);
+            pyramidGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[2]]);
+            pyramidGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[2]]);
+            pyramidGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[2]]);
+        
+        
+
+        // create the pyramid using the apple texture
+        pyramid = new THREE.Mesh( pyramidGeom, appleMaterial);
+        pyramid.rotation.set(0.4,-0.8,0); 
+        pyramid.position.z = -10;
+        scene.add(pyramid);
+    }
+
+    // Render the scene. This is called for each frame of the animation.
+    function render() {
+        requestAnimationFrame( render );
+
+        // cube.rotation.x += .04;
+        // cube.rotation.y += .02;
+
+        renderer.render(scene, camera);
+    }
+
+    //----------------------------------------------------------------------------------
+
+    // The init() function is called by the onload event when the document has loaded.
+    function init() {
+        try {
+            canvas = document.getElementById("glcanvas");
+            renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true} );
+        }
+        catch (e) {
+            document.getElementById("canvas-holder").innerHTML = "<h3><b>WebGL is not available.</b><h3>";
+            return;
+        }
+    
+        // create world and render scene
+        createWorld();
+        render();
+    }
+
+</script>
+
+</head>
+<body onload="init()">
+<div id="canvas-holder">
+    <canvas id="glcanvas" width="600" height="400"></canvas>
+</div>
+</body>
+</html>

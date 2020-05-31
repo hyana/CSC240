@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Transformations</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+    var timer;
+    var angle = 0.1; // we will rotate the cube by this angle each time
+    var x = 40;
+    var y = 80;
+    var ax = 2;
+    var ay = 3;
+
+    function rotateCube() {
+        graphics.rotate(angle);
+        graphics.fillRect(100,100,50,50);
+    }
+    
+    function draw() {
+        // draw a circle for the cube to rotate around
+        graphics.beginPath();
+        graphics.arc(400,400,180,0,2*Math.PI);
+        graphics.stroke();
+
+        // 1) call translate twice with different values, then switch the order
+        // graphics.translate(x,y);
+        // graphics.translate(30,40);
+        // no changes
+        // 2) call rotate twice with different values, then switch the order
+        // graphics.rotate(0.8);
+        // graphics.rotate(angle);
+        // no changes
+        // 3) call translate then rotate, and then switch the order
+        // graphics.rotate(angle);
+        graphics.translate(400,400);
+        // changes
+        // 4) call rotate then scale, and then switch the order
+        // graphics.scale(ax,ay);
+        // graphics.translate(x,y);
+        // changes
+        // graphics.fillRect(0,0,50,50);
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        graphics.fillStyle = "blue";
+        draw();  // draw something on the canvas
+        timer = setInterval(rotateCube, 150);
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="800" height="800"></canvas>
+</body>
+</html>

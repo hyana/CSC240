@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Checkerboard</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+    // for now we will limit ourselves to drawing one pixel at a time
+
+    // TODO: replace the code below with code that returns one color 
+    // if x is even and another if x is odd (then later a checkerboard)
+
+    // this function will construct the drawing:
+    function draw() {
+        // draw on the canvas, using the graphics context
+
+        // TODO: put the code below inside a double for
+        // loop over x and y, up to canvas.width and canvas.height
+        
+        // still works
+        for (var x = canvas.width; x > 0; x--){
+            for(var y = 0; y < canvas.height; y++){
+                var color = pixColor(x,y);
+                graphics.fillStyle = color;
+                graphics.fillRect(x,y,900,900); // why is it not changed
+    }
+        }}
+
+        function pixColor(x,y) {
+        /* check my note. so 0-10, it will be colored to yellow because it won't exceed 10 at all
+         * if the tens are odd, then it is colored to blue
+         * since "blue" has a conjuction and, x and y should be both blue to present on the screen
+         * which means if x is blue and y is yellow then it is yellow
+         * size of the check should be an even number to make a perfect yellow boundary
+         */
+        if (x % 20 >= 10 && y % 20 >= 10){
+            return "blue";}
+        else {
+            return "yellow";}
+    }
+    // this function sets up some variables and calls the drawing function:
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="290"></canvas>
+</body>
+</html>

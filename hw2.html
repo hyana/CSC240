@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Flood Fill</title>
+ 
+
+<script>
+    /* Stack Overflow happens when the radius of polygon exceeds 100 (assumption: the polygon is triangle, browser is Chrome)
+    * When I tested my program using IE, Chrome, and Firefox, it seems like Firefox has larger capacity of stacks than
+      the other browsers because it processes the triangle with the radius of 101 which other browsers fail to do
+    * Conclusion: Firefox > Chrome > IE (Capacity of stacks)
+
+    * If I set the fill color inside of the recursive function, stack overflow happens because color keeps
+      being resetted within the recursive function.
+
+    * When I change fill color to RGBA values, the program easily gets stack overflow.
+    * My assumption is that the program gets more stacks with arrays than the string of color   
+      because the string of color is already implemented in Javascript while arrays have four elements to be processed
+    */
+
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    // note: change both for a different background color
+    var backgroundColor = "green";
+    var backgroundRGB = [0,128,0,255];
+    var n = 6;
+    var cx = 225;
+    var cy = 125;
+    var r = 40;
+    var lineColor = "red";
+
+    // return true if color1 == color2, an false otherwise
+    // example input: color1 = [0,255,0,255], pure green
+    function colorEqual(color1, color2) {
+        // TODO
+        for (var i = 0; i <= 3; i++){
+            if (color1[i] == color2[i]){
+                return true;
+            } else {
+                return false;
+        }
+    }   
+    }
+    // fill a shape, starting at the pixel (x,y)
+    // note: make sure to set "fillStyle" to the desired fill color 
+    // before calling this function
+    // var oldColorRGB = [0, 0, 255, 255];
+    var oldColor = "blue";
+
+    function floodFill(x, y, oldColor) {
+        var pixColorRGB = graphics.getImageData(x, y, 1, 1).data; 
+        var result = colorEqual(pixColorRGB, backgroundRGB);
+        
+        if (result == false){
+            return 0;
+        } else if (result == true) {
+            graphics.fillStyle = oldColor;
+            graphics.fillRect(x, y, 1, 1);
+            
+            // set a new color to avoid stack overflow   
+            var newColor = "yellow";
+            // var newColorRGB = [0, 255, 255, 255];
+        }
+            floodFill(x - 1, y, oldColor);
+            floodFill(x + 1 , y, newColor);
+            floodFill(x, y - 1, oldColor);
+            floodFill(x, y + 1, newColor);
+        }
+    
+    function sweepFill(x, y, oldColor){
+            for (x = cx - 2 * r; x < cx; x++) {
+                var pixColorRGB = graphics.getImageData(x, y, 1, 1).data; 
+                var result = colorEqual(pixColorRGB, backgroundRGB);
+                if (result == false){
+                    var startX = x;
+                }
+            }
+            for (x = cx; x < cx + 2 * r; x++){
+                var pixColorRGB = graphics.getImageData(x, y, 1, 1).data; 
+                var result = colorEqual(pixColorRGB, backgroundRGB);
+                if (result == false){
+                    var finalX = x;
+                }
+            }
+            for (x = startX + 1; x < finalX - 1; x++) {
+                graphics.fillStyle = oldColor;
+                graphics.fillRect(x, y, 1, 1);
+                }
+            sweepFill(x, y - 1, oldColor);
+            }
+
+
+    function regularPolygon(n, cx, cy, r, lineColor) {
+        graphics.strokeStyle = lineColor
+        var theta = 2 * Math.PI
+
+        graphics.beginPath();
+        var x = cx + r * Math.cos(i * angle);           
+        var y = cy + r * Math.sin(i * angle);
+        graphics.moveTo(x, y);
+        for (var i = 0; i <= n; i++) {
+            var angle = theta / n
+            x = cx + r * Math.cos(i * angle);    
+            y = cy + r * Math.sin(i * angle);
+            graphics.lineTo(x, y);
+        }
+        graphics.stroke();
+    }
+    
+    function draw() {
+        // make sure to color the background first, since it doesn't have a default color
+        graphics.fillStyle = backgroundColor;
+        graphics.fillRect(0, 0, canvas.width, canvas.height);
+        // TODO: call your regular polygon function, then fill it from the center
+        regularPolygon(n, cx, cy, r, lineColor);
+        floodFill(cx, cy, oldColor);
+    }
+
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="290"></canvas>
+</body>
+</html>

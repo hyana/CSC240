@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Canvas Graphics</title>
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+    
+    function draw() {
+           // draw on the canvas, using the graphics context
+       for (var i = 20; i < 40; i += 2){
+           window.alert(i);
+       }
+        graphics.fillStyle = "red";
+        graphics.fillRect(2, 3, 9, 9); /
+        graphics.fillText("Hello World", 1, 10); // x, y coordinates
+        graphics.fillText("Hello Class", 5, 80);
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="640" height="480"></canvas>
+</body>
+</html>

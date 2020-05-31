@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Flood Fill</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    // note: change both for a different background color
+    var backgroundColor = "green";
+    var backgroundRGB = [0,128,0,255];
+    var n = 5;
+    var cx = 225;
+    var cy = 125;
+    var r = 30;
+    var lineColor = "red";
+    var lineColorRGB = [72, 92, 0, 255];
+
+    // return true if color1 == color2, an false otherwise
+    // example input: color1 = [0,255,0,255], pure green
+    function colorEqual(color1, color2) {
+        // TODO
+        for (var i = 0; i <= 3; i++){
+            if (color1[i] == color2[i]){
+                return true;
+            } else {
+                return false;
+        }
+    }   
+    }
+    // fill a shape, starting at the pixel (x,y)
+    // note: make sure to set "fillStyle" to the desired fill color 
+    // before calling this function
+    var oldColor = "blue";
+
+    function floodFill(x, y, oldColor) {
+        var pixColorRGB = graphics.getImageData(x, y, 1, 1).data; 
+        var result = colorEqual(pixColorRGB, backgroundRGB);
+        
+        if (result == false){
+            return 0;
+        } else if (result == true) {
+            graphics.fillStyle = oldColor;
+            graphics.fillRect(x, y, 1, 1);
+            // tracking colored pixel to avoid stack overflow   
+            var newColor = "yellow";
+        }
+            floodFill(x - 1, y, oldColor);
+            floodFill(x + 1 , y, newColor);
+            floodFill(x, y - 1, oldColor);
+            floodFill(x, y + 1, newColor);
+        }
+    
+
+    function sweepFill(x, y, oldColor){
+            var Xs = [];
+            for (x = cx - 2 * r; x < cx + 2 * r; x++) {
+                var pixColorRGB = graphics.getImageData(x, y, 1, 1).data; 
+                var result = colorEqual(pixColorRGB, backgroundRGB);
+
+                    Xs.push("x");
+                    console.log(Xs.unshift("x"));
+                }
+            
+            for (x = Xs.shift(); x < Xs.shift() - 1; x++) {
+                    graphics.fillStyle = oldColor;
+                    graphics.fillRect(x, y, 1, 1);
+                    }
+            sweepFill(x, y - 1, oldColor);
+            }
+
+    function regularPolygon(n, cx, cy, r, lineColor) {
+        graphics.strokeStyle = lineColor
+        var theta = 2 * Math.PI
+
+        graphics.beginPath();
+        var x = cx + r * Math.cos(i * angle);           
+        var y = cy + r * Math.sin(i * angle);
+        graphics.moveTo(x, y);
+        for (var i = 0; i <= n; i++) {
+            var angle = theta / n
+            x = cx + r * Math.cos(i * angle);    
+            y = cy + r * Math.sin(i * angle);
+            graphics.lineTo(x, y);
+        }
+        graphics.stroke();
+    }
+    
+    function draw() {
+        // make sure to color the background first, since it doesn't have a default color
+        graphics.fillStyle = backgroundColor;
+        graphics.fillRect(0, 0, canvas.width, canvas.height);
+        // TODO: call your regular polygon function, then fill it from the center
+        regularPolygon(n, cx, cy, r, lineColor);
+        // floodFill(cx, cy, oldColor);
+        sweepFill(cx, cy + 2 * r, oldColor);
+    }
+
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="290"></canvas>
+</body>
+</html>

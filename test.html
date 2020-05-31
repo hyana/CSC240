@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Snowflake</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas        
+
+    function line(x1, y1, x2, y2, lineColor) {        
+        
+        var dx = x2 - x1;
+        var dy = y2 - y1;
+        var x = x1;
+        var y = y1;
+        var d = dy - (dx / 2);
+        
+        if (Math.abs(dx) >= 200){
+            var slope = dy / dx;
+            var d = dy - (dx / 2);
+        } else if (Math.abs(dx) < 200) {
+            var inverseSlope = dx / dy;
+            var invd = dx - (dy / 2);
+        }
+
+
+    if (slope >= 0){ 
+        for (x = x1; x <= x2; x++) {
+            graphics.fillRect(x, y, 5, 5);
+            graphics.fillStyle = lineColor;
+            if(d < 0){
+                d = d + dy;
+            } else {
+                d += (dy - dx);
+                y++;
+            }
+        }
+    } else if (slope < 0) {
+        for (x = x1; x <= x2; x++) {
+            graphics.fillRect(x, y, 5, 5);
+            graphics.fillStyle = lineColor;
+            if (d < 0){
+                d = d - dy;
+            } else {
+                d -= (dy - dx);
+                y--;
+            }
+        }
+    } else if (inverseSlope >= 0) {
+        for (y = y1; y <= y2; y++) {
+            graphics.fillRect(x, y, 5, 5);
+            graphics.fillStyle = lineColor;
+               if (invd < 0){
+                invd = invd + dx;
+            } else {
+                invd += (dx - dy);
+                x++;
+            }
+        }                 
+    } else if (inverseSlope < 0) {
+        for (y = y2; y <= y1; y++) {
+            graphics.fillRect(x, y, 5, 5);
+            graphics.fillStyle = lineColor;
+         if (invd < 0){
+                invd = invd + dx;
+            } else {
+                invd -= (dx - dy);
+                x--;
+            }
+    }
+}
+    graphics.stroke();
+
+}
+
+    function bonus(cx, cy, radius, lineColor) {
+        graphics.fillRect(x, y, 1, 1);
+        graphics.strokeStyle = lineColor;
+       
+        graphics.beginPath();
+        var x = cx;
+        var y = cy;
+
+        for (var i = 0; i <= 3; i++) {
+            var angle = (2 * Math.PI) / 4;
+            graphics.moveTo(cx, cy);
+            var x = cx + radius * Math.cos(i * angle);
+            var y = cy + radius * Math.sin(i * angle);
+            graphics.lineTo(x, y);
+
+        }
+
+        for (var i = 1; i <= 7; i += 2) {
+            var angle = (2 * Math.PI) / 8;
+            graphics.moveTo(cx, cy);
+            var x = cx + (radius - 5) * Math.cos(i * angle);
+            var y = cy + (radius - 5) * Math.sin(i * angle);
+            graphics.lineTo(x, y);
+
+        }
+        
+        graphics.stroke();
+
+    }
+   
+
+    function draw() {
+            line(50, 350, 75, 50, "black");
+            line(80, 240, 560, 240, "red");
+            line(200, 120, 440, 360, "rosybrown");
+            line(200, 360, 440, 120, "green");
+            line(320, 0, 320, 480, "blue");
+            for (x = 1; x <= 20; x++){
+                var randx = Math.floor(Math.random()*681)
+                var randy = Math.floor(Math.random()*481)
+                bonus(randx, randy, 20, "white");
+            }
+        }
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        graphics.lineWidth = 5;
+        graphics.translate(0.2, 0.2);
+        graphics.fillStyle = "skyblue";
+        graphics.fillRect(0, 0, canvas.width, canvas.height);
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="640" height="480"></canvas>
+</body>
+</html>

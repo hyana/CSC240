@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<head>
+<title>Phases of the Moon</title>
+<script src="three.min.js"></script>
+<script src="KeyboardState.js"></script>
+<script src="OrbitControls.js"></script>
+
+<script>
+    /**
+     * How to move the camera(This is programmed under Window 10 setting)
+     * I used OrbitControls instead of keyboard inputs.
+     * Clicking the canvas is the same with grabbing the canvas,
+     * so if you want to see the left side of the canvas, you have to click the canvas
+     * and drag the mouse to the right side, and vice versa
+     * If you want to zoom in, you have to scroll the mouse wheel upward.
+     * If you want to zoom out, you have to scroll the mouse wheel downward.
+     * If you are using the touchpad of the laptop, you have to place two fingers 
+     * on the touchpad and stretch out(zoom in) and pinch in(zoom out).
+     * */
+    var scene, camera, controls, renderer;  // Three.js rendering basics.
+
+    var canvas;  // The canvas on which the image is rendered.
+
+    var keyboard = new KeyboardState();
+
+    var pointLight; // Our directional light is global so we can change its position.
+    var angle = 0;    // The angle (about the y-axis) of the directional light.
+    var sun,
+        mercury,
+        venus,
+        earth,
+        mars,
+        moon;
+    
+    var mercuryPivot,
+        venusPivot,
+        earthPivot,
+        marsPivot,
+        moonPivot;
+
+    // Create the scene. This function is called once, as soon as the page loads.
+    // The renderer has already been created before this function is called.
+    function createWorld() {
+        scene = new THREE.Scene(); // Create a new scene which we can add objects to.
+        // to see the side part of the solar system
+        scene.rotation.x = 4.7;
+        // create a camera, sitting on the positive z-axis.  The camera is not part of the scene.
+        camera = new THREE.PerspectiveCamera(45, canvas.width/canvas.height, 0.1, 2000);
+        camera.position.z = 1000; // pull back the camera
+
+        // TODO: add point light
+        pointLight = new THREE.PointLight("white", 1, 1000); // color, intensity, and distance
+        pointLight.position.set(0, 0, 0);
+
+        // spotlight to make sun look like 3d object
+        var spotLight = new THREE.SpotLight( 0xffff00 );
+        spotLight.position.set(200, 100, 100 );
+        scene.add(spotLight);
+        
+        renderer.setClearColor(0); // Set background color (0, or 0x000000, is black).
+
+        controls = new THREE.OrbitControls( camera, renderer.domElement );
+        
+        controls.autoRotate = true; // the solar system will rotate automatically. I added this just for an aesthetic reason
+        controls.autoRotateSpeed = 1.0;
+        
+        controls.enableDamping = true; // give a sense of weight to the controls
+        controls.dampingFactor = 0.05;
+               
+        // You cannot go through the sun or go outside of this terestrial planets' area.
+        controls.minDistance = 200;
+        controls.maxDistance = 1000;
+        
+        controls.maxPolarAngle = Math.PI;
+    }
+
+    function solarSystem(){
+        
+        // set up the sphere vars
+        var sunRadius = 60,
+            earthRadius = 30,
+            moonRadius = 15,
+            mercuryRadius = 20,
+            venusRadius = 30,
+            marsRadius = 25,
+            segments = 16,
+            rings = 16;
+
+        // pivots for the revolutions
+        mercuryPivot = new THREE.Object3D(),
+        venusPivot = new THREE.Object3D(),
+        earthPivot = new THREE.Object3D(),
+        marsPivot = new THREE.Object3D();
+        moonPivot = new THREE.Object3D();
+
+        // planets' pivots for the revolution are the position of the sun in the solar system
+        mercuryPivot.position.x = 0;
+        venusPivot.position.x = 0;
+        earthPivot.position.x = 0;
+        marsPivot.position.x = 0;
+        moonPivot.position.x = 0;
+
+        // create the sphere's material
+        var sunGeom = new THREE.SphereGeometry(sunRadius, segments, rings);
+        var sunMaterial = new THREE.MeshLambertMaterial({color: "white", emissive : "red", emissiveIntensity: 0.8});
+        sun = new THREE.Mesh(sunGeom, sunMaterial);
+        
+        // no castShadow or receiveShadow because it is emitting light.
+        sun.castShadow = false;
+        sun.receiveShadow = false;
+        // add the sphere to the scene
+        scene.add(sun); 
+        // pointlight is coming out of the sun
+        sun.add(pointLight);
+
+        var mercuryGeom = new THREE.SphereGeometry(mercuryRadius, segments, rings);
+        var mercuryMaterial = new THREE.MeshLambertMaterial({ color: "grey" });
+        mercury = new THREE.Mesh(mercuryGeom, mercuryMaterial);
+        mercury.position.x = 120;
+        // it casts the shadow and also can be shadowed by other objects
+        mercury.castShadow = true;
+        mercury.receiveShadow = true;
+        // there is a pivot for revolution
+        mercuryPivot.add(mercury);
+        // the pivot of the solar system is the sun
+        sun.add(mercuryPivot);
+
+        var venusGeom = new THREE.SphereGeometry(venusRadius, segments, rings);
+        var venusMaterial = new THREE.MeshLambertMaterial({ color: "yellow" });
+        venus = new THREE.Mesh(venusGeom, venusMaterial);
+        venus.position.x = 250;
+        venus.castShadow = true;
+        venus.receiveShadow = true;
+        venusPivot.add(venus);
+        sun.add(venusPivot);
+
+        var earthGeom = new THREE.SphereGeometry(earthRadius, segments, rings);
+        var earthMaterial = new THREE.MeshLambertMaterial({ color: "blue" });
+        earth = new THREE.Mesh(earthGeom, earthMaterial);
+        earth.position.x = 350;
+        earth.castShadow = true;
+        earth.receiveShadow = true;
+        earthPivot.add(earth);
+        sun.add(earthPivot);
+
+        var marsGeom = new THREE.SphereGeometry(marsRadius, segments, rings);
+        var marsMaterial = new THREE.MeshLambertMaterial({ color: "orange" });
+        mars = new THREE.Mesh(marsGeom, marsMaterial);
+        mars.position.x = 500;
+        mars.castShadow = true;
+        mars.receiveShadow = true;
+        marsPivot.add(mars);
+        sun.add(marsPivot);
+
+        var moonGeom = new THREE.SphereGeometry(moonRadius, segments, rings);
+        var moonMaterial = new THREE.MeshLambertMaterial({ color: "grey" });
+        moon = new THREE.Mesh(moonGeom, moonMaterial);
+        moon.position.x = 60;
+        moon.castShadow = true;
+        moon.receiveShadow = true;
+        moonPivot.add(moon);
+        // moon's pivot for the revolution is an earth
+        earth.add(moonPivot);
+    }
+
+    // show/track the orbit of each planet and the moon
+    // https://stackoverflow.com/questions/13756112/draw-a-circle-not-shaded-with-three-js
+    function orbits(){
+        // orbit's radius is identical to the x-position of the object
+        var mercuryOrbitRadius = 120;
+        var mercuryOrbitMaterial = new THREE.LineBasicMaterial({color : 0x22e5e2})
+        var mercuryOrbitGeom = new THREE.CircleGeometry( mercuryOrbitRadius, 64 );
+        mercuryOrbitGeom.vertices.shift();
+        mercuryPivot.add(new THREE.Line( mercuryOrbitGeom, mercuryOrbitMaterial));
+        mercuryPivot.add(new THREE.LineLoop(mercuryOrbitGeom, mercuryOrbitMaterial));
+
+        var venusOrbitRadius = 250;
+        var venusOrbitMaterial = new THREE.LineBasicMaterial({color : 0x22e5e2})
+        var venusOrbitGeom = new THREE.CircleGeometry( venusOrbitRadius, 64 );
+        venusOrbitGeom.vertices.shift();
+        venusPivot.add(new THREE.Line( venusOrbitGeom, venusOrbitMaterial));
+        venusPivot.add(new THREE.LineLoop(venusOrbitGeom, venusOrbitMaterial));
+    
+        var earthOrbitRadius = 350;
+        var earthOrbitMaterial = new THREE.LineBasicMaterial({color : 0x22e5e2})
+        var earthOrbitGeom = new THREE.CircleGeometry( earthOrbitRadius, 64 );
+        earthOrbitGeom.vertices.shift();
+        earthPivot.add(new THREE.Line( earthOrbitGeom, earthOrbitMaterial));
+        earthPivot.add(new THREE.LineLoop(earthOrbitGeom, earthOrbitMaterial));
+    
+        var marsOrbitRadius = 500;
+        var marsOrbitMaterial = new THREE.LineBasicMaterial({color : 0x22e5e2})
+        var marsOrbitGeom = new THREE.CircleGeometry( marsOrbitRadius, 64 );
+        marsOrbitGeom.vertices.shift();
+        marsPivot.add(new THREE.Line( marsOrbitGeom, marsOrbitMaterial));
+        marsPivot.add(new THREE.LineLoop(marsOrbitGeom, marsOrbitMaterial));
+    }
+
+    // add some stars 
+    function galaxy(){
+        var starGeom = new THREE.Geometry();  
+        for (var i=0; i < 1000; i++) {  
+            var x = Math.floor(Math.random() * 1000 - 500);
+            var y = Math.floor(Math.random() * 2000 - 1000);
+            var z = Math.floor(Math.random() * 2000 -1000);
+            starGeom.vertices.push(new THREE.Vector3(x, y, z));
+            }
+        var starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 10});
+        var stars = new THREE.Points( starGeom, starMaterial);
+        // stars are not the part of the solar system
+        scene.add(stars); 
+    }
+
+
+    // Render the scene. This is called for each frame of the animation.
+    function render() {
+        requestAnimationFrame( render );
+
+        // revolutions(counterclockwise). Mercury is the main reference point
+        mercuryPivot.rotation.z += 0.06;
+        venusPivot.rotation.z += 0.04;
+        earthPivot.rotation.z += 0.038;
+        marsPivot.rotation.z += 0.03;
+        moonPivot.rotation.z += 0.001;
+
+        // rotations(24 hours is the main reference point;)
+        mercury.rotation.z += 0.0002;
+        // venus has the clockwise rotation
+        venus.rotation.z -= 0.00004;
+        earth.rotation.z += 0.01;
+        mars.rotation.z += 0.01;
+        moon.rotation.z += 0.0003;
+
+        // OrbitControls
+        controls.update();
+
+        renderer.render(scene, camera);
+    }
+
+    //----------------------------------------------------------------------------------
+
+    // The init() function is called by the onload event when the document has loaded.
+    function init() {
+        try {
+            canvas = document.getElementById("glcanvas");
+            renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true} );
+        }
+        catch (e) {
+            document.getElementById("canvas-holder").innerHTML = "<h3><b>WebGL is not available.</b><h3>";
+            return;
+        }
+    
+        // create world and render scene
+        createWorld();
+        solarSystem();
+        galaxy();
+        orbits();
+        render();
+    }
+
+</script>
+
+</head>
+<body onload="init()">
+<div id="canvas-holder">
+    <canvas id="glcanvas" width="600" height="400"></canvas>
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<head>
+<title>Texture</title>
+<script src="three.min.js"></script>
+
+<script>
+
+// texture citation: https://freestocktextures.com/texture/wooden-plank-wall,1111.html
+
+    var scene, camera, renderer; 
+
+    var canvas; 
+
+    var octahedron;
+
+    function createWorld(){
+
+        renderer.setClearColor(0); 
+        scene = new THREE.Scene();
+        scene.rotation.set(-0.4,-.7,-0.5);
+
+        camera = new THREE.PerspectiveCamera(70, canvas.width/canvas.height, 1, 1000);
+        camera.position.z = 3;
+        camera.position.y = 2;
+
+        var light = new THREE.DirectionalLight( 0xffffff );
+        light.position.set( 1, 1, 1 );
+        scene.add(light);
+
+        var addLight = new THREE.DirectionalLight( 0xffffff );
+        addLight.position.set( 0, 0, 1);
+        scene.add(addLight);
+    }
+    
+    function background(){
+        var loader = new THREE.TextureLoader();
+
+        var stoneTexture = loader.load("stone.jpg");
+        stoneTexture.wrapS = THREE.RepeatWrapping;
+        stoneTexture.wrapT = THREE.RepeatWrapping;
+        stoneTexture.repeat.set( 2, 3 );
+        var stoneMaterial = new THREE.MeshPhongMaterial( { map: stoneTexture } );
+        var floorGeometry = new THREE.PlaneGeometry(15, 15);
+
+        var floor = new THREE.Mesh( floorGeometry, stoneMaterial );
+        floor.rotation.set(-1, 0, 0);
+        scene.add( floor );
+
+        var wallTexture = loader.load("mytexture.jpg");
+        wallTexture.wrapS = THREE.RepeatWrapping;
+        wallTexture.wrapT = THREE.RepeatWrapping;
+        wallTexture.repeat.set( 2, 3 ); // twice in u and three times in v
+        var wallMaterial = new THREE.MeshPhongMaterial( { map: wallTexture } );
+        var wallGeometry = new THREE.PlaneGeometry(15, 10);
+
+        var wall1 = new THREE.Mesh( wallGeometry, wallMaterial );
+        wall1.rotation.set(.6, 0, 0);
+        wall1.position.set(0, 6, -4.5);
+        scene.add( wall1 );
+
+        var wall2 = new THREE.Mesh( wallGeometry, wallMaterial );
+        wall2.rotation.set(0.6, 1.5, 0);
+        wall2.position.set(-4.8, 3, 0);
+        scene.add( wall2 );
+    }
+
+    function createOctahedron() {
+        var loader = new THREE.TextureLoader();
+        var checkTexture = loader.load("checkerboard.png");
+        var checkMaterial = new THREE.MeshPhongMaterial( { map: checkTexture } );
+
+        var octahedronGeom = new THREE.Geometry();
+
+        octahedronGeom.vertices = [  
+        new THREE.Vector3(1, 0, 1),    
+        new THREE.Vector3(1, 0, -1),   
+        new THREE.Vector3(-1, 0, -1),  
+        new THREE.Vector3(-1, 0, 1),   
+        new THREE.Vector3(0, 1, 0),   // top of the octahedron
+        new THREE.Vector3(0, -1, 0)   // bottom of the octahedron
+        ];
+            
+        octahedronGeom.faces = [ 
+        // top pyramid
+        new THREE.Face3(3, 0, 4), 
+        new THREE.Face3(0, 1, 4),
+        new THREE.Face3(1, 2, 4),
+        new THREE.Face3(2, 3, 4),
+        // bottom pyramid
+        new THREE.Face3(3, 5, 0),
+        new THREE.Face3(0, 5, 1),
+        new THREE.Face3(1, 5, 2),
+        new THREE.Face3(2, 5, 3),
+        ];
+        
+        octahedronGeom.computeFaceNormals();  
+
+        var uvcoords = [
+        new THREE.Vector2(0, 0), 
+        new THREE.Vector2(1, 0), 
+        new THREE.Vector2(1, 1),
+        new THREE.Vector2(0, 1),
+        ];
+
+        octahedronGeom.faceVertexUvs[0] = [];
+
+        // write one line for each of the eight faces
+
+        
+        octahedronGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[2]]);
+        octahedronGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[3]]);
+        octahedronGeom.faceVertexUvs[0].push([uvcoords[1], uvcoords[2], uvcoords[3]]);
+        octahedronGeom.faceVertexUvs[0].push([uvcoords[1], uvcoords[2], uvcoords[0]]);
+        
+        octahedronGeom.faceVertexUvs[0].push([uvcoords[1], uvcoords[2], uvcoords[0]]);
+        octahedronGeom.faceVertexUvs[0].push([uvcoords[1], uvcoords[3], uvcoords[2]]);
+        octahedronGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[1], uvcoords[3]]);
+        octahedronGeom.faceVertexUvs[0].push([uvcoords[0], uvcoords[2], uvcoords[3]]);
+
+
+        
+
+        // write one line for each of other four faces
+        octahedron = new THREE.Mesh( octahedronGeom, checkMaterial);
+
+        octahedron.position.set(-1, 2, -1);
+        octahedron.rotation.set(-1, 0, 0);
+        scene.add(octahedron);
+    }
+
+    function render() {
+        requestAnimationFrame( render );
+        octahedron.rotation.x += 0.01;
+        octahedron.rotation.y -= 0.01;
+        renderer.render(scene, camera);
+    }
+
+
+    function init() {
+        try {
+            canvas = document.getElementById("glcanvas");
+            renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true} );
+        }
+        catch (e) {
+            document.getElementById("canvas-holder").innerHTML = "<h3><b>WebGL is not available.</b><h3>";
+            return;
+        }
+    
+        createWorld();
+        createOctahedron();
+        background();
+        render();
+    }
+
+</script>
+
+</head>
+<body onload="init()">
+<div id="canvas-holder">
+    <canvas id="glcanvas" width="600" height="400"></canvas>
+</div>
+</body>
+</html>

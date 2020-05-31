@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bezier Curves</title>
+
+<script>
+    // I did not work with anyone except for Prof. Nick
+
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    function bezierLineHelper(t, p0, p1){
+        var numPoints = [];
+        var x = (1 - t) * p0[0] + t * p1[0];
+        var y = (1 - t) * p0[1] + t * p1[1];
+        numPoints.push(x, y);
+        return numPoints;
+    }
+
+    function bezierLine(p0, p1){
+        var first_x = p0[0];
+        var first_y = p0[1];
+        for (var t = 0; t <= 1.01; t += 0.05) {
+            graphics.beginPath();
+            graphics.moveTo(first_x, first_y);
+            numPoints = bezierLineHelper(t, p0, p1);
+            var next_x = numPoints[0];
+            var next_y = numPoints[1];
+            first_x = next_x;
+            first_y = next_y;
+            graphics.lineTo(next_x, next_y);
+            graphics.stroke();
+        }
+    }
+
+    function bezierQuadHelper(t, p0, p1, p2){
+       var cp1 = bezierLineHelper(t, p0, p1);
+       var cp2 = bezierLineHelper(t, p1, p2);
+       var cp3 = bezierLineHelper(t, cp1, cp2);
+       return cp3;
+    }
+
+    function bezierQuad(p0, p1, p2){
+        var first_x = p0[0];
+        var first_y = p0[1];
+        for (var t = 0; t <= 1.01; t += 0.05) {
+            graphics.beginPath();
+            graphics.moveTo(first_x, first_y);
+            var numPoints = bezierQuadHelper(t, p0, p1, p2);
+            var next_x = numPoints[0];
+            var next_y = numPoints[1];
+            first_x = next_x;
+            first_y = next_y;
+            graphics.lineTo(next_x, next_y);
+            graphics.stroke();
+            
+        }
+    }
+
+    function bezierCubicHelper(t, p0, p1, p2, p3){
+        var cp1 = bezierQuadHelper(t, p0, p1, p2);
+        var cp2 = bezierLineHelper(t, p1, p2);
+        var cp3 = bezierLineHelper(t, p2, p3);
+        var cp4 = bezierLineHelper(t, cp2, cp3);
+        var cp5 = bezierLineHelper(t, cp1, cp4);
+        return cp5;
+    }
+
+    function bezierCubic(p0, p1, p2, p3){
+        var first_x = p0[0];
+        var first_y = p0[1];
+        for (var t = 0; t <= 1.01; t += 0.05) {
+            graphics.beginPath();
+            graphics.moveTo(first_x, first_y);
+            var numPoints = bezierCubicHelper(t, p0, p1, p2, p3);
+            var next_x = numPoints[0];
+            var next_y = numPoints[1];
+            graphics.lineTo(next_x, next_y);
+            graphics.stroke();
+            first_x = next_x;
+            first_y = next_y;
+        }
+    }
+
+    function letterH() {
+        var h0 = [5, 5];
+        var h1 = [5, 100];
+        var h2 = [5, 60];
+        var h3 = [20, 40];
+        var h4 = [35, 60];
+        var h5 = [35, 100];
+
+        bezierLine(h0, h1);
+        bezierQuad(h2, h3, h4);
+        bezierLine(h4, h5);
+    }
+    
+    function letterY(){
+        var y0 = [50, 55];
+        var y1 = [70, 93];
+        var y2 = [90, 55];
+        var y3 = [50, 130];
+        
+        bezierLine(y0, y1);
+        bezierLine(y2, y3);
+    }
+
+    function letterA1(){
+        var a0 = [105, 60];
+        var a1 = [120, 40];
+        var a2 = [135, 60];
+        var a3 = [135, 100];
+        var a4 = [105, 100];
+        var a5 = [110, 82];
+        var a6 = [105, 80];
+        var a7 = [135, 76];
+
+        bezierQuad(a0, a1, a2);
+        bezierLine(a2, a3);
+        bezierLine(a3, a4);
+        bezierCubic(a4, a5, a6, a7);
+    }
+
+    function letterN(){
+        var n0 = [150, 60];
+        var n1 = [150, 100];
+        var n2 = [150, 60];
+        var n3 = [165, 50];
+        var n4 = [180, 60];
+        var n5 = [180, 100];
+
+        bezierLine(n0, n1);
+        bezierQuad(n2, n3, n4);
+        bezierLine(n4, n5);
+    }
+
+    function letterA2(){
+        var a0 = [195, 60];
+        var a1 = [210, 40];
+        var a2 = [225, 60];
+        var a3 = [225, 100];
+        var a4 = [195, 100];
+        var a5 = [200, 82];
+        var a6 = [195, 80];
+        var a7 = [225, 76];
+
+        bezierQuad(a0, a1, a2);
+        bezierLine(a2, a3);
+        bezierLine(a3, a4);
+        bezierCubic(a4, a5, a6, a7);
+    }
+
+    function hyana() {
+        letterH();
+        letterY();
+        letterA1();
+        letterN();
+        letterA2();
+    }
+    
+    function comparison(){
+        for (var j = 0; j <= 100; j++) {
+            var p0 = [300 + j, 110];
+            var p1 = [300, 300 + j];
+
+            var r1 = [30, 50];
+
+            var q1 = [400 - j, 50 + j];
+            var q2 = [430 + j, 140 -j];
+            bezierCubic(p0, q1, q2, p1);
+        }
+    }
+    
+    function draw() {
+        // set up control points
+        var p0 = [200, 110];
+        var p1 = [200, 300];
+
+        var r1 = [30, 50];
+
+        var q1 = [300,50];
+        var q2 = [330,140];
+
+        // draw 3 bezier curves, all starting at p0 and ending at p1
+        bezierLine(p0, p1);
+        bezierQuad(p0, r1, p1);
+        bezierCubic(p0, q1, q2, p1);
+        // notice the difference between the quadratic and cubic curves
+        hyana();
+        // comparison();
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        graphics.lineWidth = 3;
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="640" height="480"></canvas>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Snowflake</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas        
+ g
+    function line(sx, sy, fx, fy, lineColor) {
+        graphics.fillRect(sx, sy, 1, 1);
+        graphics.strokeStyle = lineColor;
+       
+        graphics.beginPath();
+        var cx = (sx + fx) / 2;
+        var cy = (sy + fy) / 2;
+
+        var disX = fx - sx;
+        var disY = fy - sy;
+        var diameter = Math.sqrt(Math.abs(disX * disX) + Math.abs(disY * disY));
+        var radius = diameter / 2;
+
+        for (var i = 0; i <= 3; i++) {
+            var angle = (2 * Math.PI) / 4;
+            graphics.moveTo(cx, cy);
+            var x = cx + radius * Math.cos(i * angle);
+            var y = cy + radius * Math.sin(i * angle);
+            graphics.lineTo(x, y);
+
+        }
+
+        for (var i = 1; i <= 7; i+=2) {
+            var angle = (2 * Math.PI) / 8;
+            graphics.moveTo(cx, cy);
+            var x = cx + (radius - 40) * Math.cos(i * angle);
+            var y = cy + (radius - 40) * Math.sin(i * angle);
+            graphics.lineTo(x, y);
+
+        }
+        graphics.stroke();
+
+    }
+    
+    function draw() {
+            line(50, 350, 75, 50, "blue");
+        // TODO your code here
+        }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        graphics.lineWidth = 5;
+        graphics.fillStyle = "cornsilk";
+        graphics.fillRect(0, 0, canvas.width, canvas.height);
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="640" height="480"></canvas>
+</body>
+</html> 

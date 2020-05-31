@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Transformation Matrices</title>
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+    var timer;
+    var count = 0;
+    // this GLOBAL variable is responsible for maintaining the current
+    // set of transformations (3x3)
+    var currMatrix;
+
+    // draw 8
+    function figure8(){
+        graphics.save(); // save the current set of transformations
+        graphics.setTransform(1, 0, 0, 1, 0, 0); // reset matrix to the identity
+        graphics.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
+        graphics.restore(); // restore the transformations you had before
+        // first part O
+        if (count <= 30){
+            pushMatrix(rotateMatrix(Math.PI *2 / 30));
+            pushMatrix(translateMatrix(6,0))
+            count++
+        }
+        // second part O
+        else if(count > 30 && count <= 62){
+            pushMatrix(rotateMatrix(-Math.PI *2 / 30));
+            pushMatrix(translateMatrix(8,0));
+            count++
+        } else if (count > 62)  {
+            return 0;
+        }
+        graphics.fillStyle = "blue";
+        graphics.fillRect(0, 0, 5, 5);
+    }
+
+    // this function multiplies the current matrix by another transformation,
+    // then updates the current matrix to the result
+    function pushMatrix(newMatrix) {
+        currMatrix = matrixMultiply(currMatrix, newMatrix); // order very important!
+        // note that the setTransform method clear the current matrix and then
+        // sets it to be this new one (it does not build up the transformations!)
+        graphics.setTransform(currMatrix[0][0],currMatrix[1][0],
+                           currMatrix[0][1],currMatrix[1][1],
+                           currMatrix[0][2],currMatrix[1][2]);
+                        }
+
+    // assign identity matrix to currMatrix in the beginning
+    function identifyMatrix(){
+        var identity2D = [[1,0,0],[0,1,0],[0,0,1]];
+        currMatrix = identity2D;
+    }
+
+    // scale matrix
+    function scaleMatrix(ax, ay){
+        var A = [[ax,0,0],
+                [0,ay,0],
+                [0,0,1]];
+        return A;
+    }  
+
+    // rotate matrix(radian)
+    function rotateMatrix(theta) {
+        var R = [
+            [Math.cos(theta), -Math.sin(theta),0], 
+            [Math.sin(theta), Math.cos(theta),0], 
+            [0,0,1]
+            ];
+        return R;
+    }
+
+    // translate matrix
+    function translateMatrix(tx, ty) {
+        var T = [[1,0,tx],
+                [0,1,ty],
+                [0,0,1]];
+        return T;
+    }
+
+    // reflect matrix over x-axis
+    function reflectionMatrix(){
+        var R = [[1,0,0],
+                [0,-1,0],
+                [0,0,1]];
+        return R;
+    }      
+    
+    // shear matrix parallel to the x-axis
+    function shearMatrix(lambda){
+        var S = [[1,lambda,0],
+                    [0,1,0],
+                    [0,0,1]];
+        return S;
+    }     
+
+    // multiply matrix(assumption: matrix is 3*3)
+    function matrixMultiply(M1, M2){
+        var matrix = [];
+        for (var i = 0; i < 3; i++){
+            matrix[i] = [];
+            for (var j = 0; j < 3; j++){ 
+                var mult = 0;
+                for (var k = 0; k < 3; k++){
+                    mult += M1[i][k] * M2[k][j];
+                }  matrix[i].push(mult);
+            }
+        }  
+        return matrix;
+    }
+
+    function draw() {
+        pushMatrix(translateMatrix(250, 120));
+        pushMatrix(shearMatrix(0.7));
+    }
+
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        identifyMatrix();
+        draw(); // draw something on the canvas
+        timer = setInterval(figure8, 150);            
+    }
+
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="300"></canvas>
+</body>
+</html>

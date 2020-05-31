@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Snowflake</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    function line(cx, cy, fx, fy, lineColor) {
+        graphics.fillRect(cx,cy,1,1);
+        graphics.strokeStyle = lineColor
+
+        graphics.beginPath();
+        graphics.moveTo(cx, cy);
+        graphics.lineTo(fx, fy);
+        graphics.stroke();
+
+        // TODO your code here
+    }
+    
+    function draw() {
+        line(80, 240, 560, 240, "red");
+        line(320, 0, 320, 480, "blue");
+        line(200, 360, 440, 120, "green");
+        line(200, 120, 440, 360, "rosybrown");
+        // TODO your code here
+        
+        line()
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        graphics.fillStyle = "cornsilk";
+        graphics.fillRect(0, 0, canvas.width, canvas.height);
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="640" height="480"></canvas>
+</body>
+</html>

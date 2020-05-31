@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Checkerboard</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+    // for now we will limit ourselves to drawing one pixel at a time
+
+    // TODO: replace the code below with code that returns one color 
+    // if x is even and another if x is odd (then later a checkerboard)
+
+    // this function will construct the drawing:
+    function draw() {
+        // draw on the canvas, using the graphics context
+
+        // TODO: put the code below inside a double for
+        // loop over x and y, up to canvas.width and canvas.height
+        for (var x = canvas.width; x > 0; x--){
+            for(var y = 0; y < canvas.height; y++){
+                var color = pixColor(x,y);
+                graphics.fillStyle = color;
+                graphics.fillRect(x,y,1,1);
+    }
+        }}
+
+        function pixColor(x,y) {
+        if (x % 20 >= 10 && y % 20 >= 10){
+            return "blue";}
+        else {
+            return "yellow";}
+    }
+    // this function sets up some variables and calls the drawing function:
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="290"></canvas>
+</body>
+</html>

@@ -1,0 +1,65 @@
+var container = document.getElementById( "container" );
+var renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+    //renderer.setClearColor( 0x000000, 0.5 );
+var camera = new THREE.PerspectiveCamera(40,1,0.1,1000);
+var scene = new THREE.Scene();
+
+scene.add(camera);
+renderer.setSize(300, 300);
+container.appendChild( renderer.domElement );
+
+///////////////////////////////////////////////
+
+// Camera
+camera.position.x = 10;
+camera.position.y = 15;
+camera.position.z = 80;
+camera.lookAt(new THREE.Vector3(0,-8,0));
+
+// Material
+var pinkMat = new THREE.MeshPhongMaterial({
+  color      :  new THREE.Color("rgb(74,133,23)"),
+  emissive   :  new THREE.Color("rgb(52,97,12)"),
+  specular   :  new THREE.Color("rgb(149,221,87)"),
+  shininess  :  30,
+  shading    :  THREE.FlatShading,
+  transparent: 1,
+  opacity    : 1
+});
+
+var L1 = new THREE.PointLight( 0xffffff, 0.3);
+L1.position.z = 100;
+L1.position.y = 20;
+L1.position.x = 100;
+scene.add(L1);
+
+var L2 = new THREE.PointLight( 0xffffff, 0.5);
+L2.position.z = 200;
+L2.position.y = 50;
+L2.position.x = -100;
+scene.add(L2);
+
+// IcoSphere -> THREE.IcosahedronGeometry(80, 1) 1-4
+var IcoTop = new THREE.Mesh(new THREE.CylinderGeometry( 0, 9, 20, 6, 1 ), pinkMat);
+scene.add(IcoTop);
+var IcoBottom = new THREE.Mesh(new THREE.CylinderGeometry( 0, 9, 20, 6, 1 ), pinkMat);
+IcoBottom.position.y = -20;
+IcoBottom.rotation.z = 3.14;
+scene.add(IcoBottom);
+
+var t = 0;
+function update(){
+   IcoTop.rotation.y+=2/100;
+   IcoBottom.rotation.y+=2/100;
+   camera.position.y += Math.sin(t)/16;
+   t+=0.1;
+}
+
+// Render
+function render() {
+  requestAnimationFrame(render);			
+  renderer.render(scene, camera);	
+  update();
+}
+
+render();

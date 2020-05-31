@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<head>
+<title>Final Project</title>
+<script src="three.min.js"></script>
+<script src="GLTFLoader.js"></script>
+<script src="KeyboardState.js"></script>
+
+<script>
+    var scene, camera, renderer, canvas; 
+    var up = true;
+    var character = new THREE.Object3D();
+    var enemy = new THREE.Object3D();
+    var headObj, bodyObj, rightArmObj, leftArmObj, ballObj;
+    
+    var enemyLa, enemyRa, enemyHead;
+
+
+    var keyboard = new KeyboardState();
+
+    var gltfObj;
+
+    var characterSphere, enemybox;
+
+    function createWorld() {
+
+        renderer.setClearColor(0x0f9dd7);
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(100, canvas.width/canvas.height, 1, 1000);
+
+        camera.position.z = 110;
+        character.position.set(13, -2, 80);
+
+        if (character.position.z < -100){
+            camera.position.z = -100;
+        }
+
+        var light = new THREE.DirectionalLight( 'white' );
+
+        light.position.set( 0, 1, 1 );
+        scene.add(light);
+        
+    }
+
+    function background(){
+        var wallMaterial = new THREE.MeshPhongMaterial();
+        wallMaterial.map = THREE.ImageUtils.loadTexture("wall.jpg");
+        wallMaterial.bumpMap = THREE.ImageUtils.loadTexture("wallbump.jpg");
+        wallMaterial.map.wrapS = THREE.RepeatWrapping;
+        wallMaterial.bumpMap.wrapS = THREE.RepeatWrapping;
+        wallMaterial.map.wrapT = THREE.RepeatWrapping;
+        wallMaterial.bumpMap.wrapT = THREE.RepeatWrapping;
+
+        wallMaterial.map.repeat.set( 2, 2); 
+        wallMaterial.bumpMap.repeat.set( 2, 2 ); 
+
+        
+        var wallGeometry = new THREE.PlaneGeometry(70, 40);
+        var mainWall = new THREE.Mesh( wallGeometry, wallMaterial );
+        mainWall.position.set(0, 10, -50);
+        mainWall.receiveShadow = true;
+
+        var wall2 = new THREE.Mesh( wallGeometry, wallMaterial );
+        wall2.rotation.y = 1.3;
+        wall2.position.set(-30, 0, 10);
+        mainWall.add(wall2);
+
+        var wall3 = new THREE.Mesh( wallGeometry, wallMaterial );
+        wall3.rotation.y = -1.3;
+        wall3.position.set(30, 0, 10);
+        mainWall.add(wall3);
+
+        var floorMaterial = new THREE.MeshPhongMaterial();
+        floorMaterial.map = THREE.ImageUtils.loadTexture("gravel.jpg");
+        floorMaterial.bumpMap = THREE.ImageUtils.loadTexture("gravelbump.jpg");
+        floorMaterial.normalMap = THREE.ImageUtils.loadTexture("gravelnorm.jpg");
+        floorMaterial.bumpMap.wrapS = THREE.RepeatWrapping;
+        floorMaterial.map.wrapS = THREE.RepeatWrapping;
+        floorMaterial.normalMap.wrapS = THREE.RepeatWrapping;
+        floorMaterial.bumpMap.wrapT = THREE.RepeatWrapping;
+        floorMaterial.map.wrapT = THREE.RepeatWrapping;
+        floorMaterial.normalMap.wrapT = THREE.RepeatWrapping;
+        floorMaterial.bumpMap.repeat.set( 2, 2 ); 
+        floorMaterial.map.repeat.set( 2, 2 ); 
+        floorMaterial.normalMap.repeat.set( 2, 2); 
+        var floorGeometry = new THREE.PlaneGeometry(100, 60);
+        var floor = new THREE.Mesh( floorGeometry, floorMaterial );
+        floor.rotation.x = -1.6;
+        floor.position.set(0, -20, 25);
+        floor.receiveShadow = true;
+        mainWall.add(floor);
+        mainWall.scale.set(3, 2, 3);
+        scene.add(mainWall);
+    }
+
+    function player(){
+        var loader = new THREE.GLTFLoader();
+
+        loader.load('body.glb', function ( gltf ) {
+                bodyObj = gltf.scene;
+                bodyObj.position.set(0, -15, 0);
+                bodyObj.rotation.y = 1;
+                character.add( gltf.scene );
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );
+
+        
+        loader.load('heado.glb', function ( gltf ) {
+                    headObj = gltf.scene;
+                    headObj.position.set( 0, -2.5, 0);
+                    headObj.rotation.y = 1.4;
+                    character.add( headObj );
+                },
+                function ( xhr ) {
+                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+                },
+
+                function ( error ) {
+                    console.log( 'An error happened' );
+                }
+            );
+            
+
+        loader.load('left.glb', function ( gltf ) {
+                leftArmObj = gltf.scene;  
+                leftArmObj.position.set( -5, -7, 0);
+                leftArmObj.rotation.x = 0.3;
+                leftArmObj.scale.set(0.95, 0.95, 0.95);
+                leftArmObj.rotation.y = 1.2;
+                character.add( leftArmObj );
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );
+
+
+        loader.load('right.glb', function ( gltf ) {
+                rightArmObj = gltf.scene; 
+                rightArmObj.position.set( 5, -7.1, 0);
+                rightArmObj.scale.set(0.95, 0.95, 0.95);
+                rightArmObj.rotation.x = -0.8;
+                rightArmObj.rotation.y = 1.4;
+                character.add( rightArmObj );
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );    
+
+        loader.load(
+            'leg.glb',
+            function ( gltf ) {
+                ballObj = gltf.scene; 
+                ballObj.position.set( 0, -22, 0);
+                ballObj.rotation.z = 1.5;
+                ballObj.scale.set(8, 8, 8);
+                character.add( ballObj );
+
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            // called when loading has errors
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );   
+        character.scale.set(0.9, 0.9, 0.9);
+        character.castShadow = true;
+        scene.add(character);
+    }
+
+    function tagger(){
+        var loader = new THREE.GLTFLoader();
+        loader.load(
+            'body.glb',
+            function ( gltf ) {
+                enemyBody = gltf.scene;  // we're making our variable hold the loaded object
+                enemyBody.position.set(0, 0, 0);
+                enemyBody.rotation.y = 1;
+                enemy.add( enemyBody );
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );  
+
+        loader.load(
+            'heado.glb',
+            function ( gltf ) {
+                enemyHead = gltf.scene;  // we're making our variable hold the loaded object
+                enemyHead.position.set( 0, 13, 0);
+                enemy.add( enemyHead );
+                // gltf.animations; // Array<THREE.AnimationClip>
+                // gltf.scene; // THREE.Scene
+                // gltf.scenes; // Array<THREE.Scene>
+                // gltf.cameras; // Array<THREE.Camera>
+                // gltf.asset; // Object
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );  
+
+        
+        loader.load('left.glb', function ( gltf ) {
+                enemyLa = gltf.scene; 
+                enemyLa.position.set( 0, 8, -5);
+                enemyLa.rotation.x = -3.8;
+                enemyLa.rotation.y = -1.4;
+                enemy.add( enemyLa );
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+    
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );
+
+
+        loader.load('right.glb', function ( gltf ) {
+                enemyRa = gltf.scene; 
+                enemyRa.position.set( 0, 8, 5.5);
+                enemyRa.rotation.x = -5;
+                enemyRa.rotation.y = 1.4;
+                enemy.add( enemyRa );
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );    
+
+
+        loader.load(
+            'leftleg.glb',
+            function ( gltf ) {
+                leftLegObj = gltf.scene;  // we're making our variable hold the loaded object
+                leftLegObj.position.set( 3, -15, 2);
+                enemy.add( leftLegObj );
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            // called when loading has errors
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );    
+
+        loader.load(
+            'rightleg.glb',
+            function ( gltf ) {
+                rightLegObj = gltf.scene;  // we're making our variable hold the loaded object
+                rightLegObj.position.set( 2, -17, -5);
+                enemy.add( rightLegObj );
+            },
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+
+            // called when loading has errors
+            function ( error ) {
+                console.log( 'An error happened' );
+            }
+        );   
+
+        enemy.position.set(0, -15, -43);
+        enemy.rotation.y = 1.5;
+        enemy.castShadow = true;
+        scene.add(enemy);
+    }
+
+    //collision detection
+    // reference: https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
+    function collision(){
+        var boundingGeometry = new THREE.BoxGeometry(13,40,14);
+        var boundingGeometry2 = new THREE.SphereGeometry(15,32,32)
+        var boundingMaterial = new THREE.MeshPhongMaterial({
+            opacity: 0,
+            transparent: true
+        });
+
+        enemybox = new THREE.Mesh(boundingGeometry2, boundingMaterial);
+        enemybox.position.set(enemy.position.x, enemy.position.y, enemy.position.z);
+        scene.add(enemybox);
+
+        characterSphere = new THREE.Mesh(boundingGeometry2, boundingMaterial);
+        characterSphere.position.set(character.position.x, character.position.y-10, character.position.z);
+        scene.add(characterSphere);
+
+        var x = Math.max(enemybox.minX, Math.min(characterSphere.x, enemybox.maxX));
+        var y = Math.max(enemybox.minY, Math.min(characterSphere.y, enemybox.maxY));
+        var z = Math.max(enemybox.minZ, Math.min(characterSphere.z, enemybox.maxZ));
+
+        // this is the same as isPointInsideSphere
+        var distance = Math.sqrt((x - characterSphere.x) * (x - characterSphere.x) +
+                                 (y - characterSphere.y) * (y - characterSphere.y) +
+                                (z - characterSphere.z) * (z - characterSphere.z));
+        
+        var collision = distance < characterSphere.radius;
+        }
+
+    // gameover conditions
+    // citation: https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
+    function playGame(){ 
+        var counter = 0;
+        var wait = [4000, 5000, 6000];
+        var random = Math.floor(Math.random() * (2-0 + 1) + 0);
+        var attack = setInterval(function() {
+            counter++;
+            enemyHead.rotation.y += Math.PI;
+            if (counter % 2 == 1 && (keyboard.pressed("left")|keyboard.pressed("right")|keyboard.pressed("up")) == true){
+                setTimeout(function(){
+                alert("The tagger saw your movement! GAME OVER")
+                document.location.reload();
+                clearInterval();
+                }, 500);
+            }
+            if (counter >= 10){
+                setTimeout(function(){
+                alert("You need to tag the tagger before 10 trials! GAME OVER")
+                document.location.reload();
+                clearInterval(interval);
+                }, 500);   
+            }
+            }, wait[random]);
+    }
+
+    function update() {
+        keyboard.update();
+            if(keyboard.pressed("left") && character.position.x >= -50) {
+                character.position.x -= 0.2;
+            }
+            if(keyboard.pressed("left") && character.rotation.y <=0.5) {
+                character.rotation.y += 0.1;
+                ballObj.rotation.y += 0.1;
+            }
+            if(keyboard.pressed("right") && character.position.x <= 50) {
+                character.position.x += 0.2;
+            }
+            if(keyboard.pressed("right") && character.rotation.y >= -0.5){
+                character.rotation.y -= 0.1;
+                ballObj.rotation.y -= 0.1;
+            }
+            if ( keyboard.pressed("up") && character.position.z >= -40) {
+                camera.position.z -= 0.2;
+                character.position.z -= 0.2;
+                ballObj.rotation.x -= 0.1;
+                if (leftArmObj.rotation.x >= 0.3){
+                    leftArmObj.rotation.x += 0.1;
+                    if(leftArmObj.rotation.x == 2.3){
+                        if (leftArmObj.rotation.x <= 2.3){
+                            leftArmObj.rotation.x -= 0.1;
+                    }
+                }
+                }
+                if(rightArmObj.rotation.x <= -0.8){
+                    rightArmObj.rotation.x -= 0.1;
+                    if (rightArmObj.rotation.x == -2.8){
+                        if (rightArmObj.rotation.x >= -2.8){
+                            rightArmObj.rotation.x += 0.1;
+                } 
+            }
+        }
+        }
+        if (character.position.x >= -10 && character.position.x <= 10 && character.position.z <= -25){
+            setTimeout(function(){
+                alert("You successfully tag the tagger! YOU WIN")
+                document.location.reload();
+                clearInterval(interval);
+                }, 500);        
+                }
+    }
+     
+
+    function render() {
+        requestAnimationFrame( render );
+        update();
+        renderer.render(scene, camera);
+    }
+
+
+    function init() {
+        try {
+            canvas = document.getElementById("glcanvas");
+            renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true} );
+        }
+        catch (e) {
+            document.getElementById("canvas-holder").innerHTML = "<h3><b>WebGL is not available.</b><h3>";
+            return;
+        }
+        createWorld();
+        background();
+        // collision();
+        player();
+        tagger();
+        playGame();
+        render();
+    }
+
+
+</script>
+
+</head>
+<body onload="init()">
+<div id="canvas-holder">
+    <canvas id="glcanvas" width="1000" height="750"></canvas>
+</div>
+</body>
+</html>

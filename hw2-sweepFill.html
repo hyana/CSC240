@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sweep Fill</title>
+ 
+
+<script>
+    /* Maybe it is because the way of my programming is wrong, but sweepFill was slower than floodFill in general,
+       and it gets stack overflow very easily.
+    * I think the main reason is because there are too many iterations, so when these iterations are combined with recursion,
+      there are more stacks to process than ones in the floodfill. 
+    */
+
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    // note: change both for a different background color
+    var backgroundColor = "green";
+    var backgroundRGB = [0,128,0,255];
+    var n = 5;
+    var cx = 225;
+    var cy = 125;
+    var r = 30;
+    var lineColor = "red";
+
+    // return true if color1 == color2, an false otherwise
+    // example input: color1 = [0,255,0,255], pure green
+    function colorEqual(color1, color2) {
+        // TODO
+        for (var i = 0; i <= 3; i++){
+            if (color1[i] == color2[i]){
+                return true;
+            } else {
+                return false;
+        }
+    }   
+    }
+    // fill a shape, starting at the pixel (x,y)
+    // note: make sure to set "fillStyle" to the desired fill color 
+    // before calling this function
+    var oldColor = "blue";
+    
+    function sweepFill(x, y, oldColor){
+            for (x = cx - 2 * r; x < cx; x++) {
+                var pixColorRGB = graphics.getImageData(x, y, 1, 1).data; 
+                var result = colorEqual(pixColorRGB, backgroundRGB);
+                if (result == false){
+                    var startX = x;
+                }
+            }
+            for (x = cx; x < cx + 2 * r; x++){
+                var pixColorRGB = graphics.getImageData(x, y, 1, 1).data; 
+                var result = colorEqual(pixColorRGB, backgroundRGB);
+                if (result == false){
+                    var finalX = x;
+                }
+            }
+            for (x = startX + 1; x < finalX - 1; x++) {
+                graphics.fillStyle = oldColor;
+                graphics.fillRect(x, y, 1, 1);
+                }
+            sweepFill(x, y - 1, oldColor);
+            }
+
+
+    function regularPolygon(n, cx, cy, r, lineColor) {
+        graphics.strokeStyle = lineColor
+        var theta = 2 * Math.PI
+
+        graphics.beginPath();
+        var x = cx + r * Math.cos(i * angle);           
+        var y = cy + r * Math.sin(i * angle);
+        graphics.moveTo(x, y);
+        for (var i = 0; i <= n; i++) {
+            var angle = theta / n
+            x = cx + r * Math.cos(i * angle);    
+            y = cy + r * Math.sin(i * angle);
+            graphics.lineTo(x, y);
+        }
+        graphics.stroke();
+    }
+    
+    function draw() {
+        // make sure to color the background first, since it doesn't have a default color
+        graphics.fillStyle = backgroundColor;
+        graphics.fillRect(0, 0, canvas.width, canvas.height);
+        // TODO: call your regular polygon function, then fill it from the center
+        regularPolygon(n, cx, cy, r, lineColor);
+        sweepFill(cx, cy + 2 * r, oldColor);
+    }
+
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="290"></canvas>
+</body>
+</html>
